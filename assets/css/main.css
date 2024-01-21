@@ -3585,7 +3585,19 @@ input, select, textarea {
 				}
 
 		}
-
+		.banner-image {
+			width: 200px; /* Adjust based on your preference */
+			height: 200px; /* Adjust based on your preference */
+			border-radius: 50%; /* This makes the image circular */
+			object-fit: cover; /* This makes sure the image covers the area without stretching */
+			transition: transform 0.5s ease-in-out; /* Smooth transition for zoom effect */
+			display: block; /* Optional: to remove bottom space/margin of the image */
+		}
+		
+		.banner-image:hover {
+			transform: scale(1.20); /* Adjust scale value to your preference */
+		}
+		
 /* Main */
 
 	#main {
