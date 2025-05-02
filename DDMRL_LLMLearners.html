@@ -162,17 +162,31 @@
             <div class="content"><div class="inner">
               <header class="major"><h3>Experimental Setup</h3></header>
               <p>
-                For our experiments, we fine-tuned a medium-sized language model using the RLVR approach and the baseline for comparison. Below are the key training details for reproducibility:<br>
-                • Base Model: We started with Gemma-3-4B-IT, a 4-billion-parameter instruction-tuned model. We set up two separate fine-tuning runs: one on the GSM8K math word problem dataset, and another on the MATH competition problem dataset. This allows us to evaluate performance on each dataset independently.<br>
-                • Training Duration: Each model was trained for roughly 1,000 RL optimization steps. This is a relatively short training schedule, leveraging the strong pre-trained foundation of Gemma-3-4B-IT and the focused reward signals to quickly improve reasoning ability.<br>
-                • Batching and Sampling: We used a batch size of 1 (one problem prompt at a time). However, for each prompt, the model generated 6 different solution attempts in parallel. We employed the GRPO (Group Relative Policy Optimization) strategy, which means the rewards of these 6 samples were compared to each other. By ranking the samples from best to worst (according to the reward function) and updating the policy to favor the higher-reward ones, we achieve a stable training signal without needing a separate value function. This multi-sample approach helps the model learn from comparative feedback on each question.<br>
-                • Reward Computation: The reward for each sample was computed based on the criteria described above (accuracy, format, and reasoning for the RLVR model). Only the final answer’s correctness and format mattered for the baseline; the RLVR model also got the extra reasoning score from the teacher when applicable.<br>
-                • Regularization (KL Penalty): To ensure the fine-tuning doesn’t push the model too far from its pre-trained behavior (which could cause instability or loss of general language ability), we added a small Kullback–Leibler (KL) divergence penalty. We set β = 0.001 for this KL regularization term. In practice, this gently constrains the updated policy to stay close to the initial model’s output distribution, preventing the student from going off-track due to the narrow reward signals. This technique is common in RL fine-tuning (analogous to what’s done in RLHF) and helps maintain output quality and diversity.<br><br>
-                Dataset Used:<br>
-                1. GSM8K (Grade School Math 8K): is a dataset of 8.5K high quality linguistically diverse grade school math word problems. The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.<br><br>
-                2. MATH Dataset: The MATH dataset is a collection of mathematics competition problems designed to evaluate mathematical reasoning and problem-solving capabilities in computational systems. Containing 12,500 high school competition-level mathematics problems, this dataset is notable for including detailed step-by-step solutions alongside each problem.<br><br>
-                In summary, our experimental setup fine-tunes a 4B parameter model on two math-focused benchmarks with a novel reward scheme. We generate multiple solutions per prompt (using GRPO) and apply a slight KL regularization, which together ensure efficient and stable training under the RLVR framework. We trained and evaluates our models separately on two datasets i.e., MATH and GSM8k
-              </p>
+              For our experiments, we fine-tuned a medium-sized language model using the RLVR approach and the baseline for comparison. Below are the key training details for reproducibility:
+            </p>
+            
+            <ul>
+              <li>Base Model: We started with Gemma-3-4B-IT, a 4-billion-parameter instruction-tuned model. We set up two separate fine-tuning runs: one on the GSM8K math word problem dataset, and another on the MATH competition problem dataset. This allows us to evaluate performance on each dataset independently.</li>
+            
+              <li>Training Duration: Each model was trained for roughly 1,000 RL optimization steps. This is a relatively short training schedule, leveraging the strong pre-trained foundation of Gemma-3-4B-IT and the focused reward signals to quickly improve reasoning ability.</li>
+            
+              <li>Batching and Sampling: We used a batch size of 1 (one problem prompt at a time). However, for each prompt, the model generated 6 different solution attempts in parallel. We employed the GRPO (Group Relative Policy Optimization) strategy, which means the rewards of these 6 samples were compared to each other. By ranking the samples from best to worst (according to the reward function) and updating the policy to favor the higher-reward ones, we achieve a stable training signal without needing a separate value function. This multi-sample approach helps the model learn from comparative feedback on each question.</li>
+            
+              <li>Reward Computation: The reward for each sample was computed based on the criteria described above (accuracy, format, and reasoning for the RLVR model). Only the final answer’s correctness and format mattered for the baseline; the RLVR model also got the extra reasoning score from the teacher when applicable.</li>
+            
+              <li>Regularization (KL Penalty): To ensure the fine-tuning doesn’t push the model too far from its pre-trained behavior (which could cause instability or loss of general language ability), we added a small Kullback–Leibler (KL) divergence penalty. We set β = 0.001 for this KL regularization term. In practice, this gently constrains the updated policy to stay close to the initial model’s output distribution, preventing the student from going off-track due to the narrow reward signals. This technique is common in RL fine-tuning (analogous to what’s done in RLHF) and helps maintain output quality and diversity.</li>
+            </ul>
+            
+            <p>Dataset Used:</p>
+            <ol>
+              <li>GSM8K (Grade School Math 8K): is a dataset of 8.5K high quality linguistically diverse grade school math word problems. The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.</li>
+            
+              <li>MATH Dataset: The MATH dataset is a collection of mathematics competition problems designed to evaluate mathematical reasoning and problem-solving capabilities in computational systems. Containing 12,500 high school competition-level mathematics problems, this dataset is notable for including detailed step-by-step solutions alongside each problem.</li>
+            </ol>
+            
+            <p>
+              In summary, our experimental setup fine-tunes a 4B parameter model on two math-focused benchmarks with a novel reward scheme. We generate multiple solutions per prompt (using GRPO) and apply a slight KL regularization, which together ensure efficient and stable training under the RLVR framework. We trained and evaluates our models separately on two datasets i.e., MATH and GSM8k
+            </p>
             </div></div>
           </section>
         </section>
