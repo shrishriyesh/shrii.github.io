@@ -45,93 +45,101 @@
       <!-- Main body -->
       <div id="main">
 
-        <!-- 1 · Overview -->
+        <!-- 1 · Overview -->
         <section id="overview" class="inner">
           <header class="major">
             <h2>Project Overview</h2>
           </header>
           <p>
-            Goal: teach small language models to <em>think</em> rather than memorise, by rewarding both the final answer and the intermediate reasoning steps. A stronger "judge" LLM provides a <strong>verifiable reward</strong> signal for each trajectory, enabling reinforcement‑learning fine‑tuning (GRPO).
+            In the Reinforcement Learning with Verifiable Rewards (RLVR) training approach we add an extra reasoning-based reward to the learning process. In this project, a student language model learns to solve problems with feedback not only on whether its final answer is correct, but also on the reasoning it used (when applicable). A larger teacher LLM oversees training: the teacher model provides reasoning-based feedback only when the student’s answer is correct. This means the student is mainly rewarded for correct answers (and proper answer format), and for those correct solutions, it also gains additional reward if the reasoning leading to the answer is sound. By verifying reasoning in successful attempts, RLVR encourages the student model to develop correct step-by-step problem-solving skills, not just lucky guesses.
           </p>
-          <ul>
-            <li><strong>Solver (models)</strong>: <code>Gemma‑3‑4B‑IT</code> variants.</li>
-            <li><strong>Judge (model)</strong>: <code>DeepSeek‑R1‑Distill‑70B</code> (API).</li>
-            <li><strong>Datasets</strong>: GSM‑8K (grade‑school maths) &amp; MATH‑12.5K.</li>
-            <li><strong>Rewards</strong>: format ✓, answer accuracy ✓, reasoning correctness ✓✓.</li>
-            <li><strong>Algorithm</strong>: Generalised REINFORCE Policy Optimisation (GRPO).</li>
-          </ul>
         </section>
 
-        <!-- 2 · Methodology (flow diagram) -->
-        <section id="method" class="spotlights">
-          <section>
-            <a href="#" class="image">
-              <!-- *FIGURE‑PIPELINE*  – flowchart showing base→RLVR→R1‑Zero 800×600 -->
-              <img src="images/RLVR.png" alt="RLVR training pipeline" data-position="center center" />
-            </a>
-            <div class="content">
-              <div class="inner">
-                <header class="major"><h3>Training Pipeline</h3></header>
-                <p>
-                  1️⃣ The <em>base model</em> generates a reasoning trace + answer.&nbsp;2️⃣ The <em>judge</em> evaluates <strong>format</strong>, <strong>answer correctness</strong> &amp; <strong>reasoning soundness</strong>, returning a scalar in {0, 0.5, 1}.&nbsp;3️⃣ GRPO updates the solver in the direction of higher verified reward.
-                </p>
-              </div>
+       <!-- 2 · Methodology (flow diagram) -->
+      <section id="method" class="spotlights">
+        <section>
+          <a href="#" class="image">
+            <!-- *FIGURE-PIPELINE*  – flowchart showing base→RLVR→R1-Zero 800×600 -->
+            <img src="images/RLVR.png" alt="RLVR training pipeline" data-position="center center" />
+          </a>
+          <div class="content">
+            <div class="inner">
+              <header class="major"><h3>Training Pipeline</h3></header>
+              <p>
+                The RLVR training pipeline we proprose updates the student LLM using multiple feedback signals with guidance from a larger model. For each training query (in our case, a math problem), the student model generates a solution with a chain-of-thought. We then evaluate the student’s output on three aspects:<br>
+                • Accuracy of the answer: Did the student get the correct final answer? This yields a primary reward signal (positive if correct, zero/negative if incorrect).<br>
+                • Format compliance: Does the response follow the required format or instructions (e.g. showing reasoning steps and a neatly formatted answer)? If the output is well-formatted, the student earns additional reward for following instructions properly.<br>
+                • Reasoning quality (Our Addition): If we are using the reasoning-based reward (in the RLVR setup), the teacher LLM examines the student’s reasoning steps but only if the final answer was correct. The teacher checks whether the solution’s reasoning is logically valid and complete. A correct answer accompanied by a solid reasoning chain gains extra reward from this verification step. Incorrect answers are not analyzed for reasoning to save computation and avoid misleading feedback.<br><br>
+                These reward components are combined to adjust the student model’s policy via reinforcement learning (using a method like GRPO, a variant of PPO). In simple terms, the student gradually learns to maximize these rewards, which means learning to produce accurate, well-formatted, and (when required) well-reasoned answers. Over many training iterations, this pipeline aligns the student model’s behavior with the desired outcomes and reasoning process, guided by feedback from the teacher model on successful solutions.
+              </p>
             </div>
-          </section>
-
-          <!-- Baseline slide -->
-          <section>
-            <a href="#" class="image">
-              <!-- *FIGURE‑BASELINE* – baseline diagram (DeepSeek Math style) 800×600 -->
-              <img src="images/Baseline.png" alt="Baseline RL diagram" data-position="top center" />
-            </a>
-            <div class="content">
-              <div class="inner">
-                <header class="major"><h3>Baseline Setup</h3></header>
-                <p>
-                  As a control, we implement the canonical <em>Format + Accuracy</em> reward used by DeepSeek Math / R1, omitting the reasoning check. Improvements over this baseline isolate the benefit of our <strong>Reasoning Correctness</strong> signal.
-                </p>
-              </div>
-            </div>
-          </section>
+          </div>
         </section>
+      </section>
 
-        <!-- 3 · Reward criteria cards -->
-        <section id="reward" class="inner">
-          <header class="major"><h2>Our Model and Proposed Reward Components</h2></header>
-          <div class="row gtr-50 gtr-uniform">
-            <div class="col-4">
-              <!-- *FIGURE‑FORMAT* -->
-              <span class="image fit"><img src="images/Format_reward.png" alt="Format reward" /></span>
-              <h4 class="center">Format ✓</h4>
-            </div>
-            <div class="col-4">
-              <!-- *FIGURE‑ACCURACY* -->
-              <span class="image fit"><img src="images/Accuracy_Reward.png" alt="Accuracy reward" /></span>
-              <h4 class="center">Answer Accuracy ✓</h4>
-            </div>
-            <div class="col-4">
-              <!-- *FIGURE‑REASONING* -->
-              <span class="image fit"><img src="images/Reasoning_Reward.png" alt="Reasoning reward" /></span>
-              <h4 class="center">Reasoning Correctness ✓✓</h4>
+         <!-- Baseline slide -->
+        <section>
+          <a href="#" class="image">
+            <!-- *FIGURE-BASELINE* – baseline diagram (DeepSeek Math style) 800×600 -->
+            <img src="images/Baseline.png" alt="Baseline RL diagram" data-position="top center" />
+          </a>
+          <div class="content">
+            <div class="inner">
+              <header class="major"><h3>Baseline Setup</h3></header>
+              <p>
+                As a baseline, we first train the student model with only accuracy and format-based rewards, without any reasoning feedback. In this setup, the reinforcement learning reward function simply checks if the final answer is correct and if the answer is presented in the proper format. The student gets positive feedback for answering correctly and adhering to the expected answer style or format (and zero or negative feedback otherwise). There is no evaluation of the content of the reasoning steps in this baseline. This approach mirrors the strategy used in prior works like DeepSeek-R1 and DeepSeek-MATH, which relied solely on outcome-based rewards (correct answer and format compliance) to improve the model. The baseline establishes how well the model can do with only those basic signals, serving as a point of comparison for our enhanced method.
+              </p>
             </div>
           </div>
         </section>
 
-        <!-- 4 · Experimental details -->
+        <!-- 3 · Reward criteria cards -->
+        <section id="reward" class="inner">
+          <header class="major"><h2>Our Model and Proposed Reward Components</h2></header>
+          <p>
+            Our model extends the baseline by adding a reasoning-based reward on top of the accuracy and format signals. In practice, we incorporate an additional feedback step where a teacher LLM reviews the student’s reasoning whenever the student produces a correct final answer. If the student’s reasoning is logical and leads correctly to the answer, the teacher provides a reward signal indicating high reasoning quality. This extra signal is only computed for correct answers – if the student’s answer is wrong, we skip the reasoning check. By doing this, we save a lot of compute time and focus the teacher’s effort on cases that succeeded, extracting more learning signal from each success.<br><br>
+            This reasoning reward helps the student model learn more effectively from fewer examples, improving sample efficiency. Essentially, every time the student solves a problem correctly, it not only learns that it got the answer right, but also why it was right (if its reasoning was good or where it could improve). Over time, this guides the student to produce not just correct answers, but correct answers with sound problem-solving steps. We find that this is especially helpful on harder tasks (like challenging math problems), where correct answers are harder to come by. In those cases, the extra reasoning feedback on each success makes a big difference – the student squeezes as much learning as possible from each correct attempt, accelerating its improvement on complex reasoning tasks.
+          </p>
+          <div class="row gtr-50 gtr-uniform">
+            <div class="col-4">
+              <!-- *FIGURE-FORMAT* -->
+              <span class="image fit"><img src="images/Format_reward.png" alt="Format reward" /></span>
+              <h4 class="center">Format Correctness ✓</h4>
+            </div>
+            <div class="col-4">
+              <!-- *FIGURE-ACCURACY* -->
+              <span class="image fit"><img src="images/Accuracy_Reward.png" alt="Accuracy reward" /></span>
+              <h4 class="center">Answer Accuracy ✓</h4>
+            </div>
+            <div class="col-4">
+              <!-- *FIGURE-REASONING* -->
+              <span class="image fit"><img src="images/Reasoning_Reward.png" alt="Reasoning reward" /></span>
+              <h4 class="center">Reasoning Correctness ✓✓</h4>
+            </div>
+          </div>
+        </section>
+        
+        <!-- 4 · Experimental details -->
         <section id="experiments" class="spotlights">
           <section>
             <a href="#" class="image">
-              <!-- *FIGURE‑EXP‑DETAILS* – slide with model & dataset bullets 900×600 -->
+              <!-- *FIGURE-EXP-DETAILS* – slide with model & dataset bullets 900×600 -->
               <img src="images/exp_details.png" alt="Experimental details" data-position="center center" />
             </a>
             <div class="content"><div class="inner">
               <header class="major"><h3>Experimental Setup</h3></header>
-              <ul>
-                <li>Base model initialised from <code>Gemma‑3‑4B‑IT</code>.</li>
-                <li>Judge queries to DeepSeek‑R1‑70B limited to samples whose answers are already correct (cost control).</li>
-                <li>Training budget: 1 k GRPO steps × 2 samples/step; run on a single A100 40 GB.</li>
-              </ul>
+              <p>
+                For our experiments, we fine-tuned a medium-sized language model using the RLVR approach and the baseline for comparison. Below are the key training details for reproducibility:<br>
+                • Base Model: We started with Gemma-3-4B-IT, a 4-billion-parameter instruction-tuned model. We set up two separate fine-tuning runs: one on the GSM8K math word problem dataset, and another on the MATH competition problem dataset. This allows us to evaluate performance on each dataset independently.<br>
+                • Training Duration: Each model was trained for roughly 1,000 RL optimization steps. This is a relatively short training schedule, leveraging the strong pre-trained foundation of Gemma-3-4B-IT and the focused reward signals to quickly improve reasoning ability.<br>
+                • Batching and Sampling: We used a batch size of 1 (one problem prompt at a time). However, for each prompt, the model generated 6 different solution attempts in parallel. We employed the GRPO (Group Relative Policy Optimization) strategy, which means the rewards of these 6 samples were compared to each other. By ranking the samples from best to worst (according to the reward function) and updating the policy to favor the higher-reward ones, we achieve a stable training signal without needing a separate value function. This multi-sample approach helps the model learn from comparative feedback on each question.<br>
+                • Reward Computation: The reward for each sample was computed based on the criteria described above (accuracy, format, and reasoning for the RLVR model). Only the final answer’s correctness and format mattered for the baseline; the RLVR model also got the extra reasoning score from the teacher when applicable.<br>
+                • Regularization (KL Penalty): To ensure the fine-tuning doesn’t push the model too far from its pre-trained behavior (which could cause instability or loss of general language ability), we added a small Kullback–Leibler (KL) divergence penalty. We set β = 0.001 for this KL regularization term. In practice, this gently constrains the updated policy to stay close to the initial model’s output distribution, preventing the student from going off-track due to the narrow reward signals. This technique is common in RL fine-tuning (analogous to what’s done in RLHF) and helps maintain output quality and diversity.<br><br>
+                Dataset Used:<br>
+                1. GSM8K (Grade School Math 8K): is a dataset of 8.5K high quality linguistically diverse grade school math word problems. The dataset was created to support the task of question answering on basic mathematical problems that require multi-step reasoning.<br><br>
+                2. MATH Dataset: The MATH dataset is a collection of mathematics competition problems designed to evaluate mathematical reasoning and problem-solving capabilities in computational systems. Containing 12,500 high school competition-level mathematics problems, this dataset is notable for including detailed step-by-step solutions alongside each problem.<br><br>
+                In summary, our experimental setup fine-tunes a 4B parameter model on two math-focused benchmarks with a novel reward scheme. We generate multiple solutions per prompt (using GRPO) and apply a slight KL regularization, which together ensure efficient and stable training under the RLVR framework. We trained and evaluates our models separately on two datasets i.e., MATH and GSM8k
+              </p>
             </div></div>
           </section>
         </section>
@@ -196,12 +204,14 @@
           </div>
         </section>
 
-        <!-- 6 · Callout / future work -->
+        <!-- 6 · Callout / future work -->
         <section id="future" class="style3">
           <div class="inner">
             <header class="major"><h2>Discussion &amp; Future Work</h2></header>
             <p>
-              Verified‑reasoning rewards boost both <em>accuracy</em> and <em>explanation quality</em> with modest computational overhead. Ongoing work explores automated curriculum tuning, self‑refinement of the reward rubric, and extending the approach to code‑generation benchmarks.
+              Our results show that adding verifiable reasoning rewards can improve a model’s reasoning abilities, but there is room to further enhance robustness and efficiency. One important direction for future work is improving out-of-distribution generalization: we want the student model to handle problems that differ from the training set. This could be achieved by curating a more diverse set of training tasks or using curricula that expose the model to a wide variety of problem types and difficulty levels. By broadening the training distribution, the model can learn more general reasoning skills and avoid overfitting to narrow patterns.<br><br>
+              Another area to address is the compute cost associated with using a large teacher model for feedback. To reduce overhead, we could develop cheaper reward approximators – for example, training a smaller auxiliary model to mimic the teacher’s reasoning evaluation. Such a reward model, once trained, could quickly judge the student’s reasoning without needing to call the full teacher LLM every time. This would make the RLVR training loop more efficient. Additionally, we can explore dynamic teacher usage strategies: instead of invoking the teacher on every correct answer, the training could adaptively decide when the teacher’s input is truly needed. For instance, in early training the teacher might be used frequently to guide learning, but as the student improves, we might consult the teacher only on particularly challenging or novel problems. This selective guidance can maintain the benefits of reasoning feedback while cutting down the number of expensive teacher model calls.<br><br>
+              In summary, future improvements may come from making the reward mechanism more efficient and ensuring the training data/strategy encourages broad generalization. Techniques like using distilled reward models, diversifying training examples, and smartly adjusting when to involve a teacher model are promising research directions to make reinforcement learning with LLMs both more powerful and more practical.
             </p>
           </div>
         </section>
@@ -210,7 +220,7 @@
         <section id="team" class="inner">
           <header class="major"><h2>Team &amp; Resources</h2></header>
           <p>
-            Shriyesh Chandra · Arjun Singh Rathore · CSCE 689, Texas A&amp;M University.
+            Tarun Sharma, Arjun Shriyesh Chandra, Tanmay Dhadhania
           </p>
           <ul class="actions">
             <li><a href="https://github.com/arjunsinghrathore/RL_VerifiableRewards" class="button icon brands fa-github">GitHub</a></li>
