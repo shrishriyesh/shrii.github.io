@@ -51,32 +51,48 @@
             <h2>Project Overview</h2>
           </header>
           <p>
-            In the Reinforcement Learning with Verifiable Rewards (RLVR) training approach we add an extra reasoning-based reward to the learning process. In this project, a student language model learns to solve problems with feedback not only on whether its final answer is correct, but also on the reasoning it used (when applicable). A larger teacher LLM oversees training: the teacher model provides reasoning-based feedback only when the student’s answer is correct. This means the student is mainly rewarded for correct answers (and proper answer format), and for those correct solutions, it also gains additional reward if the reasoning leading to the answer is sound. By verifying reasoning in successful attempts, RLVR encourages the student model to develop correct step-by-step problem-solving skills, not just lucky guesses.
+            In the Reinforcement Learning with Verifiable Rewards (RLVR) training approach we add an extra reasoning-based reward to the learning process. In this project, a student language model learns to solve problems with feedback not only on whether its final answer is correct, but also on the reasoning it used (when applicable). A larger teacher LLM oversees training: the teacher model provides reasoning-based feedback. This means the student is rewarded for correct answers (and proper answer format), but it also gains additional reward if the reasoning somewhat sound in itsefl. By verifying reasoning in each attempt, our training pipeline encourages the student model to develop correct step-by-step problem-solving skills, not just lucky guesses.
           </p>
         </section>
 
        <!-- 2 · Methodology (flow diagram) -->
       <section id="method" class="spotlights">
-        <section>
-          <a href="#" class="image">
-            <!-- *FIGURE-PIPELINE*  – flowchart showing base→RLVR→R1-Zero 800×600 -->
-            <img src="images/RLVR.png" alt="RLVR training pipeline" data-position="center center" />
-          </a>
-          <div class="content">
-            <div class="inner">
-              <header class="major"><h3>Training Pipeline</h3></header>
-              <p>
-                The RLVR training pipeline we proprose updates the student LLM using multiple feedback signals with guidance from a larger model. For each training query (in our case, a math problem), the student model generates a solution with a chain-of-thought. We then evaluate the student’s output on three aspects:<br>
-                • Accuracy of the answer: Did the student get the correct final answer? This yields a primary reward signal (positive if correct, zero/negative if incorrect).<br>
-                • Format compliance: Does the response follow the required format or instructions (e.g. showing reasoning steps and a neatly formatted answer)? If the output is well-formatted, the student earns additional reward for following instructions properly.<br>
-                • Reasoning quality (Our Addition): If we are using the reasoning-based reward (in the RLVR setup), the teacher LLM examines the student’s reasoning steps but only if the final answer was correct. The teacher checks whether the solution’s reasoning is logically valid and complete. A correct answer accompanied by a solid reasoning chain gains extra reward from this verification step. Incorrect answers are not analyzed for reasoning to save computation and avoid misleading feedback.<br><br>
-                These reward components are combined to adjust the student model’s policy via reinforcement learning (using a method like GRPO, a variant of PPO). In simple terms, the student gradually learns to maximize these rewards, which means learning to produce accurate, well-formatted, and (when required) well-reasoned answers. Over many training iterations, this pipeline aligns the student model’s behavior with the desired outcomes and reasoning process, guided by feedback from the teacher model on successful solutions.
-              </p>
-            </div>
+      <section>
+        <a href="#" class="image">
+          <!-- *FIGURE-PIPELINE*  – flowchart showing base→RLVR→R1-Zero 800×600 -->
+          <img src="images/RLVR.png" alt="RLVR training pipeline" data-position="center center" />
+        </a>
+        <div class="content">
+          <div class="inner">
+            <header class="major"><h3>Training Pipeline</h3></header>
+    
+            <!-- original intro paragraph kept verbatim -->
+            <p>
+              The RLVR training pipeline we proprose updates the student LLM using multiple feedback signals with guidance from a larger model. For each training query (in our case, a math problem), the student model generates a solution with a chain-of-thought. We then evaluate the student’s output on three aspects:
+            </p>
+    
+            <!-- switched from br-separated bullets to a proper unordered list -->
+            <ul>
+              <li>Accuracy of the answer: Did the student get the correct final answer? This yields a primary reward signal (positive if correct, zero/negative if incorrect).</li>
+    
+              <li>Format compliance: Does the response follow the required format or instructions (e.g. showing reasoning steps and a neatly formatted answer)? If the output is well-formatted, the student earns additional reward for following instructions properly.</li>
+    
+              <li>
+                Reasoning quality (Our Addition): When the optional reasoning-based reward is enabled, the teacher LLM reviews the student’s chain-of-thought for logical soundness and completeness.  
+                &nbsp;&nbsp;&bull;&nbsp;<em>Method 1&nbsp;(computationally cheaper):</em> the teacher inspects reasoning only if the final answer is correct, saving compute and avoiding noisy feedback on wrong answers.  
+                &nbsp;&nbsp;&bull;&nbsp;<em>Method 2&nbsp;(computationally more expensive):</em> the teacher inspects reasoning for every sample, regardless of correctness, providing richer but costlier feedback.  
+                A solution earns extra reward from this step only when its reasoning is coherent and valid.
+              </li>
+            </ul>
+    
+            <!-- closing paragraph kept verbatim -->
+            <p>
+              These reward components are combined to adjust the student model’s policy via reinforcement learning (using a method like GRPO, a variant of PPO). In simple terms, the student gradually learns to maximize these rewards, which means learning to produce accurate, well-formatted, and (when required) well-reasoned answers. Over many training iterations, this pipeline aligns the student model’s behavior with the desired outcomes and reasoning process, guided by feedback from the teacher model on successful solutions.
+            </p>
           </div>
-        </section>
+        </div>
       </section>
-
+    </section>
          <!-- Baseline slide -->
         <section>
           <a href="#" class="image">
@@ -96,10 +112,27 @@
         <!-- 3 · Reward criteria cards -->
         <section id="reward" class="inner">
           <header class="major"><h2>Our Model and Proposed Reward Components</h2></header>
+        
           <p>
-            Our model extends the baseline by adding a reasoning-based reward on top of the accuracy and format signals. In practice, we incorporate an additional feedback step where a teacher LLM reviews the student’s reasoning whenever the student produces a correct final answer. If the student’s reasoning is logical and leads correctly to the answer, the teacher provides a reward signal indicating high reasoning quality. This extra signal is only computed for correct answers – if the student’s answer is wrong, we skip the reasoning check. By doing this, we save a lot of compute time and focus the teacher’s effort on cases that succeeded, extracting more learning signal from each success.<br><br>
-            This reasoning reward helps the student model learn more effectively from fewer examples, improving sample efficiency. Essentially, every time the student solves a problem correctly, it not only learns that it got the answer right, but also why it was right (if its reasoning was good or where it could improve). Over time, this guides the student to produce not just correct answers, but correct answers with sound problem-solving steps. We find that this is especially helpful on harder tasks (like challenging math problems), where correct answers are harder to come by. In those cases, the extra reasoning feedback on each success makes a big difference – the student squeezes as much learning as possible from each correct attempt, accelerating its improvement on complex reasoning tasks.
+            Our model extends the baseline by adding a <strong>reasoning-correctness reward</strong> on top of the accuracy and format signals.  
+            A teacher LLM inspects the student’s chain&nbsp;of&nbsp;thought and assigns a score using one of two modes:
           </p>
+        
+          <ul>
+            <li><strong>Method&nbsp;1 (Computationally Cheaper):</strong>  
+                The teacher is called <em>only when the final answer is correct</em>. This limits compute and avoids noisy feedback on wrong answers.  
+                Reward scale&nbsp;&rarr;&nbsp;{ 1&nbsp;fully&nbsp;correct&nbsp;&vert;&nbsp;0.5&nbsp;some&nbsp;valid&nbsp;steps&nbsp;&vert;&nbsp;0&nbsp;mostly&nbsp;wrong }.
+            </li>
+            <li><strong>Method&nbsp;2 (Computationally Expensive):</strong>  
+                The teacher is called on <em>every output</em>, granting partial credit even if the answer is wrong.  
+                Reward scale&nbsp;&rarr;&nbsp;{ 1&nbsp;answer &amp; reasoning correct&nbsp;&vert;&nbsp;0.66&nbsp;answer correct but gaps&nbsp;&vert;&nbsp;0.33&nbsp;answer wrong but some valid steps&nbsp;&vert;&nbsp;0 largely wrong }.
+            </li>
+          </ul>
+        
+          <p>
+            This additional signal helps the student learn more from each example, improving sample efficiency—especially on harder tasks such as challenging math problems. Over time, the model is encouraged to produce not just correct answers, but correct answers backed by sound reasoning.
+          </p>
+        
           <div class="row gtr-50 gtr-uniform">
             <div class="col-4">
               <!-- *FIGURE-FORMAT* -->
@@ -204,19 +237,37 @@
           </div>
         </section>
 
-        <!-- 6 · Callout / future work -->
-        <section id="future" class="style3">
+        <!-- 6 · Results -->
+        <section id="results" class="style2">   <!-- keep any class name you prefer -->
           <div class="inner">
-            <header class="major"><h2>Discussion &amp; Future Work</h2></header>
-            <p>
-              Our results show that adding verifiable reasoning rewards can improve a model’s reasoning abilities, but there is room to further enhance robustness and efficiency. One important direction for future work is improving out-of-distribution generalization: we want the student model to handle problems that differ from the training set. This could be achieved by curating a more diverse set of training tasks or using curricula that expose the model to a wide variety of problem types and difficulty levels. By broadening the training distribution, the model can learn more general reasoning skills and avoid overfitting to narrow patterns.<br><br>
-              Another area to address is the compute cost associated with using a large teacher model for feedback. To reduce overhead, we could develop cheaper reward approximators – for example, training a smaller auxiliary model to mimic the teacher’s reasoning evaluation. Such a reward model, once trained, could quickly judge the student’s reasoning without needing to call the full teacher LLM every time. This would make the RLVR training loop more efficient. Additionally, we can explore dynamic teacher usage strategies: instead of invoking the teacher on every correct answer, the training could adaptively decide when the teacher’s input is truly needed. For instance, in early training the teacher might be used frequently to guide learning, but as the student improves, we might consult the teacher only on particularly challenging or novel problems. This selective guidance can maintain the benefits of reasoning feedback while cutting down the number of expensive teacher model calls.<br><br>
-              In summary, future improvements may come from making the reward mechanism more efficient and ensuring the training data/strategy encourages broad generalization. Techniques like using distilled reward models, diversifying training examples, and smartly adjusting when to involve a teacher model are promising research directions to make reinforcement learning with LLMs both more powerful and more practical.
-            </p>
+            <header class="major"><h2>Results</h2></header>
+        
+            <p>Our experiments yield two main take-aways:</p>
+            <ul>
+              <li><strong>Higher sample-efficiency on the MATH dataset.</strong>
+                  Both reasoning-reward variants out-learn the baseline, and the always-on check in <em>Method&nbsp;2</em> converges quickest.</li>
+        
+              <li><strong>Better generalization through stronger reasoning.</strong>
+                  Encouraging logically sound chains-of-thought produces models that transfer more robustly to held-out problems, as seen in the accompanying plots and accuracy table.</li>
+            </ul>
           </div>
         </section>
 
-        <!-- 7 · Team & links -->
+      <!-- 7 · Callout / future work -->
+      <section id="future" class="style3">
+        <div class="inner">
+          <header class="major"><h2>Discussion &amp; Future Work</h2></header>
+      
+          <!-- updated first paragraph: removed the sentence now covered in Results -->
+          <p>
+            While reasoning rewards markedly improve performance, there is still room to enhance robustness and efficiency. One important direction for future work is improving out-of-distribution generalization: we want the student model to handle problems that differ from the training set. This could be achieved by curating a more diverse set of training tasks or using curricula that expose the model to a wide variety of problem types and difficulty levels. By broadening the training distribution, the model can learn more general reasoning skills and avoid overfitting to narrow patterns.<br><br>
+            Another area to address is the compute cost associated with using a large teacher model for feedback. To reduce overhead, we could develop cheaper reward approximators – for example, training a smaller auxiliary model to mimic the teacher’s reasoning evaluation. Such a reward model, once trained, could quickly judge the student’s reasoning without needing to call the full teacher LLM every time. This would make the RLVR training loop more efficient. Additionally, we can explore dynamic teacher usage strategies: instead of invoking the teacher on every correct answer, the training could adaptively decide when the teacher’s input is truly needed. For instance, in early training the teacher might be used frequently to guide learning, but as the student improves, we might consult the teacher only on particularly challenging or novel problems. This selective guidance can maintain the benefits of reasoning feedback while cutting down the number of expensive teacher model calls.<br><br>
+            In summary, future improvements may come from making the reward mechanism more efficient and ensuring the training data/strategy encourages broad generalization. Techniques like using distilled reward models, diversifying training examples, and smartly adjusting when to involve a teacher model are promising research directions to make reinforcement learning with LLMs both more powerful and more practical.
+          </p>
+        </div>
+      </section>
+
+        <!-- 8 · Team & links -->
         <section id="team" class="inner">
           <header class="major"><h2>Team &amp; Resources</h2></header>
           <p>
