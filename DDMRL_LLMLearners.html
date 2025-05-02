@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
 <!--
-  Forty by HTML5 UP
-  Adapted for Deep Decision & Reinforcement Learning course project
+  Forty by HTML5 UP – heavily pruned & retitled for
+  "Verifiable Rewards: Enforcing Correct Reasoning in LLMs via RL" (RLVR)
+  All *FIGURE* comments mark slide‑image placeholders for you to swap in.
 -->
 <html>
   <head>
-    <title>Big Judges, Small Solvers</title>
+    <title>Verifiable Rewards (RLVR)</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="assets/css/main.css" />
@@ -14,196 +15,207 @@
   <body class="is-preload">
 
     <!-- Wrapper -->
-      <div id="wrapper">
+    <div id="wrapper">
 
-        <!-- Header -->
-          <header id="header" class="alt style2">
-            <a href="index.html" class="logo"><strong>Shriyesh</strong> <span>Chandra</span></a>
-            <nav>
-              <a href="#menu">Menu</a>
-            </nav>
+      <!-- Header -->
+      <header id="header" class="alt style2">
+        <a href="index.html" class="logo"><strong>Shriyesh</strong> <span>Chandra</span></a>
+        <nav>
+          <a href="#menu">Menu</a>
+        </nav>
+      </header>
+
+      <!-- Banner (hero) -->
+      <section id="banner" class="style2">
+        <div class="inner">
+          <span class="image">
+            <!-- *FIGURE‑HERO*  – 1920×1080 hero banner from slide 1 -->
+            <img src="images/hero_placeholder.jpg" alt="Verifiable Rewards hero" />
+          </span>
+          <header class="major">
+            <h1>Verifiable Rewards</h1>
           </header>
+          <div class="content">
+            <p>Enforcing Correct Reasoning in LLMs via Reinforcement Learning<br />CSCE 689 • Spring 2025</p>
+          </div>
+        </div>
+      </section>
 
-        <!-- Banner -->
-          <section id="banner" class="style2">
-            <div class="inner">
-              <span class="image">
-                <!-- Replace with project hero image 1920×1080 -->
-                <img src="images/banner_rl.jpg" alt="Project banner image" />
-              </span>
-              <header class="major">
-                <h1>Big Judges, Small Solvers</h1>
-              </header>
-              <div class="content">
-                <p>Leveraging Large Language Models as Verifiable Reward Functions<br />
-                Deep Decision &amp; Reinforcement Learning · Spring 2025</p>
+      <!-- Main body -->
+      <div id="main">
+
+        <!-- 1 · Overview -->
+        <section id="overview" class="inner">
+          <header class="major">
+            <h2>Project Overview</h2>
+          </header>
+          <p>
+            Goal: teach small language models to <em>think</em> rather than memorise, by rewarding both the final answer and the intermediate reasoning steps. A stronger "judge" LLM provides a <strong>verifiable reward</strong> signal for each trajectory, enabling reinforcement‑learning fine‑tuning (GRPO).
+          </p>
+          <ul>
+            <li><strong>Solver (models)</strong>: <code>Gemma‑3‑4B‑IT</code> variants.</li>
+            <li><strong>Judge (model)</strong>: <code>DeepSeek‑R1‑Distill‑70B</code> (API).</li>
+            <li><strong>Datasets</strong>: GSM‑8K (grade‑school maths) &amp; MATH‑12.5K.</li>
+            <li><strong>Rewards</strong>: format ✓, answer accuracy ✓, reasoning correctness ✓✓.</li>
+            <li><strong>Algorithm</strong>: Generalised REINFORCE Policy Optimisation (GRPO).</li>
+          </ul>
+        </section>
+
+        <!-- 2 · Methodology (flow diagram) -->
+        <section id="method" class="spotlights">
+          <section>
+            <a href="#" class="image">
+              <!-- *FIGURE‑PIPELINE*  – flowchart showing base→RLVR→R1‑Zero 800×600 -->
+              <img src="images/pipeline_placeholder.png" alt="RLVR training pipeline" data-position="center center" />
+            </a>
+            <div class="content">
+              <div class="inner">
+                <header class="major"><h3>Training Pipeline</h3></header>
+                <p>
+                  1️⃣ The <em>base model</em> generates a reasoning trace + answer.&nbsp;2️⃣ The <em>judge</em> evaluates <strong>format</strong>, <strong>answer correctness</strong> &amp; <strong>reasoning soundness</strong>, returning a scalar in {0, 0.5, 1}.&nbsp;3️⃣ GRPO updates the solver in the direction of higher verified reward.
+                </p>
               </div>
             </div>
           </section>
 
-        <!-- Main -->
-          <div id="main">
+          <!-- Baseline slide -->
+          <section>
+            <a href="#" class="image">
+              <!-- *FIGURE‑BASELINE* – baseline diagram (DeepSeek Math style) 800×600 -->
+              <img src="images/baseline_placeholder.png" alt="Baseline RL diagram" data-position="top center" />
+            </a>
+            <div class="content">
+              <div class="inner">
+                <header class="major"><h3>Baseline Setup</h3></header>
+                <p>
+                  As a control, we implement the canonical <em>Format + Accuracy</em> reward used by DeepSeek Math / R1, omitting the reasoning check. Improvements over this baseline isolate the benefit of our <strong>Reasoning Correctness</strong> signal.
+                </p>
+              </div>
+            </div>
+          </section>
+        </section>
 
-            <!-- Overview -->
-              <section id="one">
-                <div class="inner">
-                  <header class="major">
-                    <h2>Project Overview</h2>
-                  </header>
-                  <p>
-                    Can a large language model (LLM) <em>judge</em> reasoning better than it can <em>solve</em> a task?  
-                    We fine‑tune compact solvers (3–7 B parameters) with reinforcement learning, while a stronger judge model (e.g.&nbsp;AceMath‑7B‑Instruct) delivers a reward reflecting answer correctness and the clarity of the reasoning.
-                  </p>
-                  <ul>
-                    <li><strong>Reward Scale</strong>: 0 – incorrect / flawed; 1 – correct with partially flawed reasoning; 2 – correct &amp; concise.</li>
-                    <li><strong>RL Algorithms</strong>: Proximal Policy Optimization (PPO) and Generalized REINFORCE Policy Optimization (GRPO).</li>
-                    <li><strong>Benchmarks</strong>: <code>GSM‑8K</code>, <code>MATH</code>, plus exploratory code‑generation tasks.</li>
-                  </ul>
-                </div>
-              </section>
+        <!-- 3 · Reward criteria cards -->
+        <section id="reward" class="inner">
+          <header class="major"><h2>Reward Components</h2></header>
+          <div class="row gtr-50 gtr-uniform">
+            <div class="col-4">
+              <!-- *FIGURE‑FORMAT* -->
+              <span class="image fit"><img src="images/format_reward_placeholder.png" alt="Format reward" /></span>
+              <h4 class="center">Format ✓</h4>
+            </div>
+            <div class="col-4">
+              <!-- *FIGURE‑ACCURACY* -->
+              <span class="image fit"><img src="images/accuracy_reward_placeholder.png" alt="Accuracy reward" /></span>
+              <h4 class="center">Answer Accuracy ✓</h4>
+            </div>
+            <div class="col-4">
+              <!-- *FIGURE‑REASONING* -->
+              <span class="image fit"><img src="images/reasoning_reward_placeholder.png" alt="Reasoning reward" /></span>
+              <h4 class="center">Reasoning Correctness ✓✓</h4>
+            </div>
+          </div>
+        </section>
 
-            <!-- Methodology spotlights -->
-              <section id="two" class="spotlights">
+        <!-- 4 · Experimental details -->
+        <section id="experiments" class="spotlights">
+          <section>
+            <a href="#" class="image">
+              <!-- *FIGURE‑EXP‑DETAILS* – slide with model & dataset bullets 900×600 -->
+              <img src="images/exp_details_placeholder.png" alt="Experimental details" data-position="center center" />
+            </a>
+            <div class="content"><div class="inner">
+              <header class="major"><h3>Experimental Setup</h3></header>
+              <ul>
+                <li>Base model initialised from <code>Gemma‑3‑4B‑IT</code>.</li>
+                <li>Judge queries to DeepSeek‑R1‑70B limited to samples whose answers are already correct (cost control).</li>
+                <li>Training budget: 1 k GRPO steps × 2 samples/step; run on a single A100 40 GB.</li>
+              </ul>
+            </div></div>
+          </section>
+        </section>
 
-                <!-- Pipeline -->
-                <section>
-                  <a href="#" class="image">
-                    <!-- Flowchart placeholder 800×600 -->
-                    <img src="images/method_flow_placeholder.png" alt="Training pipeline diagram" data-position="center center" />
-                  </a>
-                  <div class="content">
-                    <div class="inner">
-                      <header class="major">
-                        <h3>Methodology</h3>
-                      </header>
-                      <p>
-                        At each training step, the solver proposes an answer and reasoning trace; the judge assigns a Likert‑scale reward.  
-                        Careful prompt engineering suppresses verbosity‑hacking, rewarding substance over style.  
-                        Quantization and LoRA adapters keep judge inference affordable on Google Colab / consumer GPUs.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- Baselines -->
-                <section>
-                  <a href="#" class="image">
-                    <!-- Baseline graphic placeholder 800×600 -->
-                    <img src="images/baselines_placeholder.png" alt="Baselines illustration" data-position="top center" />
-                  </a>
-                  <div class="content">
-                    <div class="inner">
-                      <header class="major">
-                        <h3>Comparative Baselines</h3>
-                      </header>
-                      <p>
-                        We benchmark against:  
-                        1) A supervised fine‑tuned model trained on identical data, and  
-                        2) A solver distilled directly from the teacher via conventional knowledge‑distillation.  
-                        Accuracy on held‑out sets and blind human/GPT‑4 preference tests gauge real‑world quality.
-                      </p>
-                    </div>
-                  </div>
-                </section>
-
-              </section>
-
-            <!-- Evaluation & Results -->
-              <section id="three">
-                <div class="inner">
-                  <header class="major">
-                    <h2>Evaluation &amp; Metrics</h2>
-                  </header>
-                  <p>
-                    Primary metric: <strong>exact‑answer accuracy</strong> on GSM‑8K &amp; MATH test splits.  
-                    Secondary: <strong>answer preference</strong> in a blind study (10 annotators + GPT‑4 judge).
-                  </p>
-                </div>
-              </section>
-
-              <section id="four" class="tiles">
-
-                <article class="style1">
-                  <span class="image">
-                    <!-- Accuracy chart placeholder 600×400 -->
-                    <img src="images/accuracy_placeholder.png" alt="Accuracy gains" />
-                  </span>
-                  <a href="#">
-                    <h2>Accuracy Gains</h2>
-                    <div class="content">
-                      <p>Early experiments show +5–8 pp versus supervised baseline on GSM‑8K.</p>
-                    </div>
-                  </a>
-                </article>
-
-                <article class="style2">
-                  <span class="image">
-                    <!-- Cost plot placeholder 600×400 -->
-                    <img src="images/cost_placeholder.png" alt="Inference cost" />
-                  </span>
-                  <a href="#">
-                    <h2>Efficiency</h2>
-                    <div class="content">
-                      <p>Judge quantization (4‑bit) cuts GPU memory to &lt;6 GB, enabling Colab‑scale proofs‑of‑concept.</p>
-                    </div>
-                  </a>
-                </article>
-
-                <article class="style3">
-                  <span class="image">
-                    <!-- Human study placeholder 600×400 -->
-                    <img src="images/preference_placeholder.png" alt="Preference study" />
-                  </span>
-                  <a href="#">
-                    <h2>Human Preference</h2>
-                    <div class="content">
-                      <p>Annotators prefer RL solver explanations 63% of the time in blind comparisons.</p>
-                    </div>
-                  </a>
-                </article>
-
-              </section>
-
-            <!-- Team & Repo -->
-              <section id="five">
-                <div class="inner">
-                  <header class="major">
-                    <h2>Team &amp; Resources</h2>
-                  </header>
-                  <p>
-                    Project by <strong>Shriyesh Chandra</strong>, <strong>Arjun Singh Rathore</strong>, and collaborators for CSCE 689 · Texas A&amp;M University.
-                  </p>
-                  <ul class="actions">
-                    <li><a href="https://github.com/arjunsinghrathore/RL_VerifiableRewards" class="button icon brands fa-github">GitHub Repository</a></li>
-                    <li><a href="report.pdf" class="button">Project Report (coming soon)</a></li>
-                  </ul>
-                </div>
-              </section>
-
+        <!-- 5 · Results -->
+        <section id="results" class="inner">
+          <header class="major"><h2>Results</h2></header>
+          <!-- accuracy plots grid -->
+          <div class="row gtr-50 gtr-uniform">
+            <div class="col-6">
+              <!-- *FIGURE‑PLOT‑BASE‑FORMAT* -->
+              <span class="image fit"><img src="images/plot_baseline_format_placeholder.png" alt="Baseline format reward curve" /></span>
+            </div>
+            <div class="col-6">
+              <!-- *FIGURE‑PLOT‑BASE‑ACC* -->
+              <span class="image fit"><img src="images/plot_baseline_acc_placeholder.png" alt="Baseline accuracy reward curve" /></span>
+            </div>
+            <div class="col-6">
+              <!-- *FIGURE‑PLOT‑OUR‑FORMAT* -->
+              <span class="image fit"><img src="images/plot_our_format_placeholder.png" alt="Our model format reward" /></span>
+            </div>
+            <div class="col-6">
+              <!-- *FIGURE‑PLOT‑OUR‑ACC* -->
+              <span class="image fit"><img src="images/plot_our_acc_placeholder.png" alt="Our model accuracy reward" /></span>
+            </div>
           </div>
 
-        <!-- Footer -->
-          <footer id="footer">
-            <div class="inner">
-              <ul class="icons">
-                <li><a href="https://github.com/shrishriyesh" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-                <li><a href="https://www.linkedin.com/in/shriyeshchandra/" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
-                <li><a href="https://www.facebook.com/shriyesh.chandra/" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
-                <li><a href="https://www.instagram.com/shrii_shriyesh/" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
-              </ul>
-            </div>
-          </footer>
+          <!-- summary table -->
+          <div class="table-wrapper">
+            <!-- *FIGURE‑TABLE‑RESULTS* – replace with rendered HTML table / image -->
+            <table>
+              <thead><tr><th>Model</th><th>MATH‑500</th><th>GSM‑8K</th></tr></thead>
+              <tbody>
+                <tr><td>Gemma‑3‑4B‑IT (init)</td><td>10.71 %</td><td>25.57 %</td></tr>
+                <tr><td>Baseline RLVR</td><td>27.32 %</td><td>78.92 %</td></tr>
+                <tr><td><strong>Our full RLVR</strong></td><td><strong>33.11 %</strong></td><td><strong>81.31 %</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-      </div>
+        <!-- 6 · Callout / future work -->
+        <section id="future" class="style3">
+          <div class="inner">
+            <header class="major"><h2>Discussion &amp; Future Work</h2></header>
+            <p>
+              Verified‑reasoning rewards boost both <em>accuracy</em> and <em>explanation quality</em> with modest computational overhead. Ongoing work explores automated curriculum tuning, self‑refinement of the reward rubric, and extending the approach to code‑generation benchmarks.
+            </p>
+          </div>
+        </section>
+
+        <!-- 7 · Team & links -->
+        <section id="team" class="inner">
+          <header class="major"><h2>Team &amp; Resources</h2></header>
+          <p>
+            Shriyesh Chandra · Arjun Singh Rathore · CSCE 689, Texas A&amp;M University.
+          </p>
+          <ul class="actions">
+            <li><a href="https://github.com/arjunsinghrathore/RL_VerifiableRewards" class="button icon brands fa-github">GitHub</a></li>
+            <li><a href="report.pdf" class="button">PDF Report</a></li>
+            <li><a href="slides.pdf" class="button">Final Slides</a></li>
+          </ul>
+        </section>
+
+      </div><!-- /main -->
+
+      <!-- Footer -->
+      <footer id="footer">
+        <div class="inner">
+          <ul class="icons">
+            <li><a href="https://github.com/shrishriyesh" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+            <li><a href="https://www.linkedin.com/in/shriyeshchandra/" class="icon brands alt fa-linkedin-in"><span class="label">LinkedIn</span></a></li>
+          </ul>
+        </div>
+      </footer>
+
+    </div><!-- /wrapper -->
 
     <!-- Scripts -->
-      <script src="assets/js/jquery.min.js"></script>
-      <script src="assets/js/jquery.scrolly.min.js"></script>
-      <script src="assets/js/jquery.scrollex.min.js"></script>
-      <script src="assets/js/browser.min.js"></script>
-      <script src="assets/js/breakpoints.min.js"></script>
-      <script src="assets/js/util.js"></script>
-      <script src="assets/js/main.js"></script>
-
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/jquery.scrolly.min.js"></script>
+    <script src="assets/js/jquery.scrollex.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
   </body>
 </html>
