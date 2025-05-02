@@ -94,41 +94,40 @@
       </section>
     </section>
          <!-- Baseline slide -->
-        <section>
-          <div class="row gtr-50 gtr-uniform">
-            <div class="col-12">
-              <span class="image fit">
-                <img src="images/Baseline.png" alt="Baseline RL diagram" />
-              </span>
-            </div>
-          </div>
+         <section>
+          <div class="inner">
         
-          <!-- NEW: accuracy + format cards -->
-          <div class="row gtr-50 gtr-uniform baseline-rewards">
-            <div class="col-6 col-12-small">
-              <!-- *FIGURE-FORMAT* -->
-              <span class="image fit">
-                <img src="images/Format_reward.png" alt="Format reward" />
-              </span>
-              <h4 class="center">Format Correctness ✓</h4>
+            <header class="major"><h3>Baseline Setup</h3></header>
+        
+            <div class="row gtr-50 gtr-uniform">
+              <div class="col-12">
+                <span class="image fit">
+                  <img src="images/Baseline.png" alt="Baseline RL diagram" />
+                </span>
+              </div>
             </div>
         
-            <div class="col-6 col-12-small">
-              <!-- *FIGURE-ACCURACY* -->
-              <span class="image fit">
-                <img src="images/Accuracy_Reward.png" alt="Accuracy reward" />
-              </span>
-              <h4 class="center">Answer Accuracy ✓</h4>
+            <div class="row gtr-50 gtr-uniform baseline-rewards">
+              <div class="col-6 col-12-small">
+                <span class="image fit">
+                  <img src="images/Format_reward.png" alt="Format reward" />
+                </span>
+                <h4 class="center">Format Correctness ✓</h4>
+              </div>
+        
+              <div class="col-6 col-12-small">
+                <span class="image fit">
+                  <img src="images/Accuracy_Reward.png" alt="Accuracy reward" />
+                </span>
+                <h4 class="center">Answer Accuracy ✓</h4>
+              </div>
             </div>
-          </div>
-          <div class="content">
-            <div class="inner">
-              <header class="major"><h3>Baseline Setup</h3></header>
-              <p>
-                As a baseline, we first train the student model with only accuracy and format-based rewards, without any reasoning feedback. In this setup, the reinforcement learning reward function simply checks if the final answer is correct and if the answer is presented in the proper format. The student gets positive feedback for answering correctly and adhering to the expected answer style or format (and zero or negative feedback otherwise). There is no evaluation of the content of the reasoning steps in this baseline. This approach mirrors the strategy used in prior works like DeepSeek-R1 and DeepSeek-MATH, which relied solely on outcome-based rewards (correct answer and format compliance) to improve the model. The baseline establishes how well the model can do with only those basic signals, serving as a point of comparison for our enhanced method.
-              </p>
-            </div>
-          </div>
+        
+            <p>
+              As a baseline, we first train the student model with only accuracy and format-based rewards, without any reasoning feedback...
+            </p>
+        
+          </div> <!-- /.inner -->
         </section>
 
         <!-- 3 · Reward criteria cards -->
