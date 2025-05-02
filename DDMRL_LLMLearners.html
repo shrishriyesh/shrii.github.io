@@ -198,21 +198,9 @@
           <div class="row gtr-50 gtr-uniform">
             <div class="col-6">
               <!-- *FIGURE‑PLOT‑BASE‑FORMAT* -->
-              <span class="image fit"><img src="images/plot1.png" alt="Baseline format reward curve" /></span>
+              <span class="image fit"><img src="images/plot_GSM.png" alt="Accuracy vs steps GSM8K" /></span>
             </div>
-            <div class="col-6">
-              <!-- *FIGURE‑PLOT‑BASE‑ACC* -->
-              <span class="image fit"><img src="images/plot2.png" alt="Baseline accuracy reward curve" /></span>
             </div>
-            <div class="col-6">
-              <!-- *FIGURE‑PLOT‑OUR‑FORMAT* -->
-              <span class="image fit"><img src="images/plot3.png" alt="Our model format reward" /></span>
-            </div>
-            <div class="col-6">
-              <!-- *FIGURE‑PLOT‑OUR‑ACC* -->
-              <span class="image fit"><img src="images/plot4.png" alt="Our model accuracy reward" /></span>
-            </div>
-          </div>
 
           <!-- 5 · Results-Math -->
         <section id="results" class="inner">
@@ -221,35 +209,28 @@
           <div class="row gtr-50 gtr-uniform">
             <div class="col-6">
               <!-- *FIGURE‑PLOT‑BASE‑FORMAT* -->
-              <span class="image fit"><img src="images/plot1m.png" alt="Baseline format reward curve" /></span>
-            </div>
-            <div class="col-6">
-              <!-- *FIGURE‑PLOT‑BASE‑ACC* -->
-              <span class="image fit"><img src="images/plot2m.png" alt="Baseline accuracy reward curve" /></span>
-            </div>
-            <div class="col-6">
-              <!-- *FIGURE‑PLOT‑OUR‑FORMAT* -->
-              <span class="image fit"><img src="images/plot3m.png" alt="Our model format reward" /></span>
-            </div>
-            <div class="col-6">
-              <!-- *FIGURE‑PLOT‑OUR‑ACC* -->
-              <span class="image fit"><img src="images/plot4m.png" alt="Our model accuracy reward" /></span>
+              <span class="image fit"><img src="images/plot_Math.png" alt="Accuracy vs steps MATH" /></span>
             </div>
           </div>
 
-          <!-- summary table -->
+                 <!-- SUMMARY TABLE -->
+        <section id="summary"><div class="inner">
+          <header class="major"><h2>Results</h2></header>
+          <p>Accuracy of the models trained and the base model (Gemma‑3‑4B‑IT) on the test sets. Exact matching is used for GSM‑8K; SymPy equivalence for MATH‑500.</p>
           <div class="table-wrapper">
-            <!-- *FIGURE‑TABLE‑RESULTS* – replace with rendered HTML table / image -->
             <table>
-              <thead><tr><th>Model</th><th>MATH‑500</th><th>GSM‑8K</th></tr></thead>
+              <thead>
+                <tr><th>Model</th><th>MATH‑500@1</th><th>GSM‑8K@1</th></tr>
+              </thead>
               <tbody>
                 <tr><td>Gemma‑3‑4B‑IT (init)</td><td>10.71 %</td><td>25.57 %</td></tr>
-                <tr><td>Baseline RLVR</td><td>27.32 %</td><td>78.92 %</td></tr>
-                <tr><td><strong>Our full RLVR</strong></td><td><strong>33.11 %</strong></td><td><strong>81.31 %</strong></td></tr>
+                <tr><td>Baseline Model (RLVR)</td><td>27.32 %</td><td>78.92 %</td></tr>
+                <tr><td><strong>Our Model – Method 1 (RLVR)</strong></td><td><strong>33.11 %</strong></td><td><strong>81.31 %</strong></td></tr>
+                <tr><td><strong>Our Model – Method 2 (RLVR)</strong></td><td><strong>33.05 %</strong></td><td>&mdash;</td></tr>
               </tbody>
             </table>
           </div>
-        </section>
+        </div></section>
 
         <!-- 6 · Results -->
         <section id="results" class="style2">   <!-- keep any class name you prefer -->
